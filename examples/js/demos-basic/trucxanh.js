@@ -168,18 +168,25 @@ containerButtonBack.on("pointerdown", () => {
 function playGame() {
     if(!isFirst) {
         score = 0;
+        shuffle(data)
         //Dau tien kiem tra da tao chua, neu chua thi tao, con tao roi thi for de bat
 
         const containerList = scence2.children;
-        console.log(scoreText)
         const text = containerList[0]
         containerList.shift()
-        shuffle(containerList)
         for (let i = 0; i < 20; i++) {
-
             containerList[i].visible = true
             containerList[i].children[1].visible = true
             containerList[i].children[2].visible = true
+
+            // const imgNew = PIXI.Sprite.from("examples/assets/" + data[i] + ".jpg");
+            // imgNew.x = 100 * 0.5;
+            // imgNew.y = 100 * 0.5;
+            // imgNew.anchor.set(0.5);
+            // imgNew.value = data[i];
+
+            let textureTmp = PIXI.Texture.from("examples/assets/" + data[i] + ".jpg");
+            containerList[i].children[0].texture = textureTmp;
         }
         containerList.unshift(text);
     }
