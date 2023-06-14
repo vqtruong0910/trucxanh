@@ -1,4 +1,3 @@
-//without this line, PixiPlugin and MotionPathPlugin may get dropped by your bundler (tree shaking)...
 const app = new PIXI.Application({
     width: 800,
     height: 600,
@@ -11,6 +10,7 @@ const SCREEN_HEIGHT = app.screen.height;
 const data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 // shuffle(data);
 let isFirst = true;
+let flat = 1;
 let scoreTotal = 100;
 let score = 0;
 let demClick = 0;
@@ -83,7 +83,10 @@ scoreText.x = 50;
 scoreText.y = 50;
 scence2.addChild(scoreText);
 
-for (let i = 19; i >= 0; i--) {
+const containerGame = new PIXI.Container();
+scence2.addChild(containerGame);
+
+for (let i = 0; i < 20; i++) {
     let container = new PIXI.Container();
     container.width = 100;
     container.height = 100;
@@ -91,7 +94,7 @@ for (let i = 19; i >= 0; i--) {
     container.y = 160 + Math.floor(i / 5) * 100;
     container.pivot.x = container._width * 0.5;
     container.pivot.y = container._height * 0.5;
-    scence2.addChild(container);
+    containerGame.addChild(container);
 
     //tao 20 hinh value
     //new pixi sprite
@@ -119,8 +122,8 @@ for (let i = 19; i >= 0; i--) {
     container.addChild(basicText);
 
     // Event
-    container.interactive = true;
-    container.cursor = "pointer";
+    // container.interactive = true;
+    // container.cursor = "pointer";
     container.on("pointerdown", handleChooseImg);
 }
 
@@ -183,55 +186,59 @@ containerButtonBack.on("pointerdown", () => {
     scence1.visible = true;
 });
 
-async function playGame() {
+function playGame() {
     const centerX = SCREEN_WIDTH * 0.5;
     const centerY = SCREEN_HEIGHT * 0.5;
     score = 0;
-    const text = scence2.children[0];
-    text.text = "Score = " + score;
-    scence2.children.shift();
-    // const index = [19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0]
+    scence2.children[0].text = "Score = " + score;
 
-    if (!isFirst) {
-        shuffle(data);
-        for (let i = 19; i >= 0; i--) {
+    if (isFirst) {
+        scence2.children[1].children.reverse();
+    } else {
+        // shuffle(data);
+        for (let i = 0; i < 20; i++) {
+            scence2.children[1].children[i].visible = true;
             // [Sprite, _Graphics, _Text]
-            scence2.children[i].visible = true;
-            scence2.children[i].children[1].visible = true;
-            scence2.children[i].children[2].visible = true;
+            scence2.children[1].children[i].children[1].visible = true;
+            scence2.children[1].children[i].children[2].visible = true;
             let textureTmp = PIXI.Texture.from(
                 "examples/assets/" + data[i] + ".jpg"
             );
-            scence2.children[i].children[0].texture = textureTmp;
-            scence2.children[i].children[0].value = data[i];
+            scence2.children[1].children[i].children[0].texture = textureTmp;
+            scence2.children[1].children[i].children[0].value = data[i];
         }
     }
-    let tl = new TimelineLite().delay(1)
+    const tl = new TimelineLite().delay(1);
     for (let i = 19; i >= 0; i--) {
-        const tween = TweenMax.from(scence2.children[i], 0.15,
-            {
-                x: centerX,
-                y: centerY,
-                // delay: i - 0.8 * i + 0.2,
-                onStart: () => onStartAnimation(scence2, i),
-                onComplete: () => onCompleteAnimation(scence2, i, i === 0)
-            }
-        );
-        tl.add(tween)
+        const tween = TweenMax.from(scence2.children[1].children[i], 0.15, {
+            x: centerX,
+            y: centerY,
+            // onStart: () => onStartAnimation(scence2, i),
+            onComplete: () => onCompleteAnimation(scence2, i, i === 0),
+        });
+        tl.add(tween);
     }
-    scence2.children.unshift(text);
     isFirst = false;
+    flat++;
 }
 
 function onStartAnimation(containerRect, i) {
-    containerRect.setChildIndex(containerRect.children[i], 20)
+    containerRect.children[1].setChildIndex(
+        containerRect.children[1].children[i],
+        19
+    );
 }
 
 function onCompleteAnimation(containerRect, i, isEnd) {
-    containerRect.setChildIndex(containerRect.children[i], i);
+    // containerRect.children[1].setChildIndex(
+    //     containerRect.children[1].children[i],
+    //     i
+    // );
     if (isEnd) {
-        console.error("22222222222222222");
-
+        for (let i = 0; i < 20; i++) {
+            containerRect.children[1].children[i].interactive = true;
+            containerRect.children[1].children[i].cursor = "pointer";
+        }
     }
 }
 
@@ -246,8 +253,8 @@ async function handleChooseImg(event) {
             x: 0,
             onStart: () => {
                 graphics.visible = false;
-                text.visible = false
-            }
+                text.visible = false;
+            },
         });
         containerPrevious = event.target;
         valueCurrent = img.value;
@@ -256,63 +263,112 @@ async function handleChooseImg(event) {
     }
     if (demClick === 2) {
         if (text._text != valueIndex) {
-            TweenMax.from([containerCurrent.scale], 0.5, {
+            TweenMax.from(containerCurrent.scale, 0.5, {
                 x: 0,
                 onStart: () => {
                     graphics.visible = false;
                     text.visible = false;
-                }
+                },
             });
         }
         await new Promise((res) => {
             // 2 tam hinh giong nhau
             if (img.value == valueCurrent && text._text != valueIndex) {
-                setTimeout(() => {
-                    new Promise((res2) => {
-                        TweenMax.to([containerCurrent.scale, containerPrevious.scale], 0.5, {
-                            x: 1.1,
-                            y: 1.1,
-                            onStart: () => {
-                                containerCurrentTmp = containerCurrent.parent.getChildIndex(containerCurrent);
-                                containerPreviousTmp = containerPrevious.parent.getChildIndex(containerPrevious);
-                                console.log(containerCurrentTmp, containerPreviousTmp)
-                                containerCurrent.parent.setChildIndex(containerCurrent, 20);
-                                containerPrevious.parent.setChildIndex(containerPrevious, 20);
-
-                            },
-                            onComplete: () => {
-                                containerCurrent.visible = false;
-                                containerPrevious.visible = false;
-                                containerCurrent.parent.setChildIndex(containerCurrent, containerCurrentTmp);
-                                containerPrevious.parent.setChildIndex(containerPrevious, containerPreviousTmp);
-                                res2();
+                new Promise((res2) => {
+                    setTimeout(() => {
+                        TweenMax.to(
+                            [containerCurrent.scale, containerPrevious.scale],
+                            0.5,
+                            {
+                                x: 1.1,
+                                y: 1.1,
+                                onStart: () => {
+                                    containerCurrentTmp =
+                                        containerCurrent.parent.getChildIndex(
+                                            containerCurrent
+                                        );
+                                    containerPreviousTmp =
+                                        containerPrevious.parent.getChildIndex(
+                                            containerPrevious
+                                        );
+                                    containerCurrent.parent.setChildIndex(
+                                        containerCurrent,
+                                        19
+                                    );
+                                    containerPrevious.parent.setChildIndex(
+                                        containerPrevious,
+                                        19
+                                    );
+                                    console.log(
+                                        "Start containerCurrentTmp: ",
+                                        containerCurrentTmp
+                                    );
+                                    console.log(
+                                        "Start containerPreviousTmp: ",
+                                        containerPreviousTmp
+                                    );
+                                },
+                                onComplete: () => {
+                                    containerCurrent.visible = false;
+                                    containerPrevious.visible = false;
+                                    // console.log(
+                                    //     "Complete containerCurrentTmp: ",
+                                    //     containerCurrentTmp
+                                    // );
+                                    // console.log(
+                                    //     "Complete containerPreviousTmp: ",
+                                    //     containerPreviousTmp
+                                    // );
+                                    // containerCurrent.parent.setChildIndex(
+                                    //     containerCurrent,
+                                    //     containerCurrentTmp
+                                    // );
+                                    // containerPrevious.parent.setChildIndex(
+                                    //     containerPrevious,
+                                    //     containerPreviousTmp
+                                    // );
+                                    res2();
+                                },
                             }
-                        });
-                    }).then(() => {
-                        scoreText.text = "Score = " + ++score;
-                        if (score == 10) {
-                            scoreTotal += score;
-                            scoreTotalText.text =
-                                "Số điểm hiện tại = " + scoreTotal;
-                            scence2.visible = false;
-                            scence3.visible = true;
-                        }
-                        res();
-                    })
-                }, 200);
+                        );
+                    }, 200);
+                }).then(() => {
+                    containerCurrent.parent.setChildIndex(
+                        containerCurrent,
+                        containerCurrentTmp
+                    );
+                    containerPrevious.parent.setChildIndex(
+                        containerPrevious,
+                        containerPreviousTmp
+                    );
+                    scoreText.text = "Score = " + ++score;
+                    if (score == 10) {
+                        scoreTotal += score;
+                        scoreTotalText.text =
+                            "Số điểm hiện tại = " + scoreTotal;
+                        scence2.visible = false;
+                        scence3.visible = true;
+                    }
+                    res();
+                });
             } else {
                 // 2 tam hinh khong giong nhau
                 setTimeout(() => {
-                    TweenMax.fromTo([containerCurrent.scale, containerPrevious.scale], 0.5, {x: 0}, {
-                        x: 1,
-                        onStart: () => {
-                            graphics.visible = true;
-                            text.visible = true;
-                            containerPrevious.children[1].visible = true;
-                            containerPrevious.children[2].visible = true;
-                            res();
+                    TweenMax.fromTo(
+                        [containerCurrent.scale, containerPrevious.scale],
+                        0.5,
+                        { x: 0 },
+                        {
+                            x: 1,
+                            onStart: () => {
+                                graphics.visible = true;
+                                text.visible = true;
+                                containerPrevious.children[1].visible = true;
+                                containerPrevious.children[2].visible = true;
+                                res();
+                            },
                         }
-                    })
+                    );
                 }, 400);
             }
         });
