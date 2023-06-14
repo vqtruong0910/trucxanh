@@ -2,7 +2,10 @@
     "demos-basic": [
         {
             "title": "Trúc xanh",
-            "entry": "trucxanh.js"
+            "entry": "trucxanh.js",
+            "plugins": [
+                "TweenMax"
+            ]
         },
         {
             "title": "Container",

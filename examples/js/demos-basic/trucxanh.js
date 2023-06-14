@@ -1,3 +1,4 @@
+//without this line, PixiPlugin and MotionPathPlugin may get dropped by your bundler (tree shaking)...
 const app = new PIXI.Application({
     width: 800,
     height: 600,
@@ -5,7 +6,6 @@ const app = new PIXI.Application({
     resolution: window.devicePixelRatio || 1,
 });
 document.body.appendChild(app.view);
-
 const SCREEN_WIDTH = app.screen.width;
 const SCREEN_HEIGHT = app.screen.height;
 const data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -15,6 +15,7 @@ let scoreTotal = 100;
 let score = 0;
 let demClick = 0;
 let containerPrevious, valueCurrent, valueIndex;
+let containerCurrentTmp, containerPreviousTmp;
 
 // Crete a new textstyle
 const style = new PIXI.TextStyle({
@@ -82,7 +83,7 @@ scoreText.x = 50;
 scoreText.y = 50;
 scence2.addChild(scoreText);
 
-for (let i = 0; i < 20; i++) {
+for (let i = 19; i >= 0; i--) {
     let container = new PIXI.Container();
     container.width = 100;
     container.height = 100;
@@ -182,28 +183,56 @@ containerButtonBack.on("pointerdown", () => {
     scence1.visible = true;
 });
 
-function playGame() {
+async function playGame() {
+    const centerX = SCREEN_WIDTH * 0.5;
+    const centerY = SCREEN_HEIGHT * 0.5;
+    score = 0;
+    const text = scence2.children[0];
+    text.text = "Score = " + score;
+    scence2.children.shift();
+    // const index = [19,18,17,16,15,14,13,12,11,10,9,8,7,6,5,4,3,2,1,0]
+
     if (!isFirst) {
-        score = 0;
         shuffle(data);
-        const containerList = scence2.children;
-        const text = containerList[0];
-        text.text = "Score = " + score;
-        containerList.shift();
-        for (let i = 0; i < 20; i++) {
+        for (let i = 19; i >= 0; i--) {
             // [Sprite, _Graphics, _Text]
-            containerList[i].visible = true;
-            containerList[i].children[1].visible = true;
-            containerList[i].children[2].visible = true;
+            scence2.children[i].visible = true;
+            scence2.children[i].children[1].visible = true;
+            scence2.children[i].children[2].visible = true;
             let textureTmp = PIXI.Texture.from(
                 "examples/assets/" + data[i] + ".jpg"
             );
-            containerList[i].children[0].texture = textureTmp;
-            containerList[i].children[0].value = data[i];
+            scence2.children[i].children[0].texture = textureTmp;
+            scence2.children[i].children[0].value = data[i];
         }
-        containerList.unshift(text);
     }
+    let tl = new TimelineLite().delay(1)
+    for (let i = 19; i >= 0; i--) {
+        const tween = TweenMax.from(scence2.children[i], 0.15,
+            {
+                x: centerX,
+                y: centerY,
+                // delay: i - 0.8 * i + 0.2,
+                onStart: () => onStartAnimation(scence2, i),
+                onComplete: () => onCompleteAnimation(scence2, i, i === 0)
+            }
+        );
+        tl.add(tween)
+    }
+    scence2.children.unshift(text);
     isFirst = false;
+}
+
+function onStartAnimation(containerRect, i) {
+    containerRect.setChildIndex(containerRect.children[i], 20)
+}
+
+function onCompleteAnimation(containerRect, i, isEnd) {
+    containerRect.setChildIndex(containerRect.children[i], i);
+    if (isEnd) {
+        console.error("22222222222222222");
+
+    }
 }
 
 async function handleChooseImg(event) {
@@ -213,38 +242,77 @@ async function handleChooseImg(event) {
     const [img, graphics, text] = event.target.children;
     const containerCurrent = event.target;
     if (demClick === 1) {
-        graphics.visible = false;
-        text.visible = false;
+        TweenMax.from(containerCurrent.scale, 0.5, {
+            x: 0,
+            onStart: () => {
+                graphics.visible = false;
+                text.visible = false
+            }
+        });
         containerPrevious = event.target;
         valueCurrent = img.value;
         valueIndex = text._text;
         return;
     }
     if (demClick === 2) {
-        graphics.visible = false;
-        text.visible = false;
+        if (text._text != valueIndex) {
+            TweenMax.from([containerCurrent.scale], 0.5, {
+                x: 0,
+                onStart: () => {
+                    graphics.visible = false;
+                    text.visible = false;
+                }
+            });
+        }
         await new Promise((res) => {
+            // 2 tam hinh giong nhau
             if (img.value == valueCurrent && text._text != valueIndex) {
                 setTimeout(() => {
-                    containerCurrent.visible = false;
-                    containerPrevious.visible = false;
-                    scoreText.text = "Score = " + ++score;
-                    if (score == 10) {
-                        scoreTotal += score;
-                        scoreTotalText.text =
-                            "Số điểm hiện tại = " + scoreTotal;
-                        scence2.visible = false;
-                        scence3.visible = true;
-                    }
-                    res();
+                    new Promise((res2) => {
+                        TweenMax.to([containerCurrent.scale, containerPrevious.scale], 0.5, {
+                            x: 1.1,
+                            y: 1.1,
+                            onStart: () => {
+                                containerCurrentTmp = containerCurrent.parent.getChildIndex(containerCurrent);
+                                containerPreviousTmp = containerPrevious.parent.getChildIndex(containerPrevious);
+                                console.log(containerCurrentTmp, containerPreviousTmp)
+                                containerCurrent.parent.setChildIndex(containerCurrent, 20);
+                                containerPrevious.parent.setChildIndex(containerPrevious, 20);
+
+                            },
+                            onComplete: () => {
+                                containerCurrent.visible = false;
+                                containerPrevious.visible = false;
+                                containerCurrent.parent.setChildIndex(containerCurrent, containerCurrentTmp);
+                                containerPrevious.parent.setChildIndex(containerPrevious, containerPreviousTmp);
+                                res2();
+                            }
+                        });
+                    }).then(() => {
+                        scoreText.text = "Score = " + ++score;
+                        if (score == 10) {
+                            scoreTotal += score;
+                            scoreTotalText.text =
+                                "Số điểm hiện tại = " + scoreTotal;
+                            scence2.visible = false;
+                            scence3.visible = true;
+                        }
+                        res();
+                    })
                 }, 200);
             } else {
+                // 2 tam hinh khong giong nhau
                 setTimeout(() => {
-                    graphics.visible = true;
-                    text.visible = true;
-                    containerPrevious.children[1].visible = true;
-                    containerPrevious.children[2].visible = true;
-                    res();
+                    TweenMax.fromTo([containerCurrent.scale, containerPrevious.scale], 0.5, {x: 0}, {
+                        x: 1,
+                        onStart: () => {
+                            graphics.visible = true;
+                            text.visible = true;
+                            containerPrevious.children[1].visible = true;
+                            containerPrevious.children[2].visible = true;
+                            res();
+                        }
+                    })
                 }, 400);
             }
         });
