@@ -31,5 +31,7 @@
     "terser": "^4.0.2",
     "watch": "^1.0.2"
   },
-  "dependencies": {}
+  "dependencies": {
+    "@pixi/particle-emitter": "^5.0.8"
+  }
 }

@@ -5,17 +5,24 @@ const app = new PIXI.Application({
     resolution: window.devicePixelRatio || 1,
 });
 document.body.appendChild(app.view);
+
 const SCREEN_WIDTH = app.screen.width;
 const SCREEN_HEIGHT = app.screen.height;
 const data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 // shuffle(data);
 let isFirst = true;
-let flat = 1;
 let scoreTotal = 100;
-let score = 0;
+let score = 100;
 let demClick = 0;
 let containerPrevious, valueCurrent, valueIndex;
 let containerCurrentTmp, containerPreviousTmp;
+let correctTurnCount = 0;
+new Cre
+
+const thunder = "test"
+createjs.Sound.registerSound("examples/assets/sound_test.mp3", thunder);
+createjs.Sound.play(thunder);
+
 
 // Crete a new textstyle
 const style = new PIXI.TextStyle({
@@ -73,6 +80,127 @@ containerButton.on("pointerdown", () => {
     playGame();
 });
 
+/*new ParticleExample(
+    // The image to use
+    ["examples/assets/particle.png"],
+
+    // Emitter configuration, edit this to change the look
+    // of the emitter
+    {
+        "lifetime": {
+            "min": 0.5,
+            "max": 0.5
+        },
+        "frequency": 0.008,
+        "emitterLifetime": 0.31,
+        "maxParticles": 1000,
+        "addAtBack": false,
+        "pos": {
+            "x": 0,
+            "y": 0
+        },
+        "behaviors": [
+            {
+                "type": "alpha",
+                "config": {
+                    "alpha": {
+                        "list": [
+                            {
+                                "time": 0,
+                                "value": 0.8
+                            },
+                            {
+                                "time": 1,
+                                "value": 0.1
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "type": "moveSpeed",
+                "config": {
+                    "speed": {
+                        "list": [
+                            {
+                                "time": 0,
+                                "value": 200
+                            },
+                            {
+                                "time": 1,
+                                "value": 100
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "type": "scale",
+                "config": {
+                    "scale": {
+                        "list": [
+                            {
+                                "time": 0,
+                                "value": 1
+                            },
+                            {
+                                "time": 1,
+                                "value": 0.3
+                            }
+                        ]
+                    },
+                    "minMult": 1
+                }
+            },
+            {
+                "type": "color",
+                "config": {
+                    "color": {
+                        "list": [
+                            {
+                                "time": 0,
+                                "value": "fb1010"
+                            },
+                            {
+                                "time": 1,
+                                "value": "f5b830"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "type": "rotationStatic",
+                "config": {
+                    "min": 0,
+                    "max": 360
+                }
+            },
+            {
+                "type": "textureRandom",
+                "config": {
+                    "textures": [
+                        "examples/assets/particle.png"
+                    ]
+                }
+            },
+            {
+                "type": "spawnShape",
+                "config": {
+                    "type": "torus",
+                    "data": {
+                        "x": 0,
+                        "y": 0,
+                        "radius": 10,
+                        "innerRadius": 0,
+                        "affectRotation": false
+                    }
+                }
+            }
+        ]
+    });*/
+
+
 //SCENCE 2
 const scence2 = new PIXI.Container();
 app.stage.addChild(scence2);
@@ -94,9 +222,9 @@ for (let i = 0; i < 20; i++) {
     container.y = 160 + Math.floor(i / 5) * 100;
     container.pivot.x = container._width * 0.5;
     container.pivot.y = container._height * 0.5;
-    containerGame.addChild(container);
+    containerGame.addChildAt(container, i);
+    containerGame.index = i;
 
-    //tao 20 hinh value
     //new pixi sprite
 
     let img = PIXI.Sprite.from("examples/assets/" + data[i] + ".jpg");
@@ -122,17 +250,24 @@ for (let i = 0; i < 20; i++) {
     container.addChild(basicText);
 
     // Event
-    // container.interactive = true;
-    // container.cursor = "pointer";
     container.on("pointerdown", handleChooseImg);
 }
 
+const resetButton = PIXI.Sprite.from("examples/assets/pngwing.com.png");
+console.log(resetButton)
+resetButton.x = SCREEN_WIDTH - 100;
+resetButton.y = 50;
+scence2.addChild(resetButton);
+
+resetButton.on("pointerdown", () => {
+    playGame();
+});
 //SCENCE 3
 const scence3 = new PIXI.Container();
 app.stage.addChild(scence3);
 scence3.visible = false;
 
-const victoryText = new PIXI.Text("CHÚC MỪNG BẠN ĐÃ THẮNG", style);
+const victoryText = new PIXI.Text("CHÚC MỪNG BẠN ĐẠT " + score, style);
 victoryText.x = SCREEN_WIDTH * 0.5;
 victoryText.y = SCREEN_HEIGHT * 0.5 - 100;
 victoryText.anchor.set(0.5);
@@ -186,26 +321,33 @@ containerButtonBack.on("pointerdown", () => {
     scence1.visible = true;
 });
 
+
 function playGame() {
     const centerX = SCREEN_WIDTH * 0.5;
     const centerY = SCREEN_HEIGHT * 0.5;
-    score = 0;
-    scence2.children[0].text = "Score = " + score;
-
+    const index = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    scence2.children[1].children.reverse();
     if (isFirst) {
-        scence2.children[1].children.reverse();
     } else {
         // shuffle(data);
+        score = 100;
+        correctTurnCount = 0;
+        scence2.children[0].text = "Score = " + score;
+        resetButton.interactive = false;
+        resetButton.cursor = false;
         for (let i = 0; i < 20; i++) {
-            scence2.children[1].children[i].visible = true;
+            const updateContainer = scence2.children[1].children;
+            updateContainer[i].interactive = false;
+            updateContainer[i].cursor = false;
+            updateContainer[i].visible = true;
             // [Sprite, _Graphics, _Text]
-            scence2.children[1].children[i].children[1].visible = true;
-            scence2.children[1].children[i].children[2].visible = true;
+            updateContainer[i].children[1].visible = true;
+            updateContainer[i].children[2].visible = true;
             let textureTmp = PIXI.Texture.from(
                 "examples/assets/" + data[i] + ".jpg"
             );
-            scence2.children[1].children[i].children[0].texture = textureTmp;
-            scence2.children[1].children[i].children[0].value = data[i];
+            updateContainer[i].children[0].texture = textureTmp;
+            updateContainer[i].children[0].value = data[i];
         }
     }
     const tl = new TimelineLite().delay(1);
@@ -213,13 +355,12 @@ function playGame() {
         const tween = TweenMax.from(scence2.children[1].children[i], 0.15, {
             x: centerX,
             y: centerY,
-            // onStart: () => onStartAnimation(scence2, i),
+            onStart: () => onStartAnimation(scence2, i),
             onComplete: () => onCompleteAnimation(scence2, i, i === 0),
         });
         tl.add(tween);
     }
     isFirst = false;
-    flat++;
 }
 
 function onStartAnimation(containerRect, i) {
@@ -230,15 +371,17 @@ function onStartAnimation(containerRect, i) {
 }
 
 function onCompleteAnimation(containerRect, i, isEnd) {
-    // containerRect.children[1].setChildIndex(
-    //     containerRect.children[1].children[i],
-    //     i
-    // );
+    containerRect.children[1].setChildIndex(
+        containerRect.children[1].children[i],
+        i
+    );
     if (isEnd) {
         for (let i = 0; i < 20; i++) {
             containerRect.children[1].children[i].interactive = true;
             containerRect.children[1].children[i].cursor = "pointer";
         }
+        resetButton.interactive = true;
+        resetButton.cursor = "pointer"
     }
 }
 
@@ -293,61 +436,57 @@ async function handleChooseImg(event) {
                                         );
                                     containerCurrent.parent.setChildIndex(
                                         containerCurrent,
-                                        19
+                                        18
                                     );
                                     containerPrevious.parent.setChildIndex(
                                         containerPrevious,
                                         19
                                     );
-                                    console.log(
-                                        "Start containerCurrentTmp: ",
-                                        containerCurrentTmp
-                                    );
-                                    console.log(
-                                        "Start containerPreviousTmp: ",
-                                        containerPreviousTmp
-                                    );
                                 },
                                 onComplete: () => {
-                                    containerCurrent.visible = false;
-                                    containerPrevious.visible = false;
-                                    // console.log(
-                                    //     "Complete containerCurrentTmp: ",
-                                    //     containerCurrentTmp
-                                    // );
-                                    // console.log(
-                                    //     "Complete containerPreviousTmp: ",
-                                    //     containerPreviousTmp
-                                    // );
                                     // containerCurrent.parent.setChildIndex(
                                     //     containerCurrent,
-                                    //     containerCurrentTmp
+                                    //     containerCurrent.index
                                     // );
                                     // containerPrevious.parent.setChildIndex(
                                     //     containerPrevious,
-                                    //     containerPreviousTmp
+                                    //     containerPrevious.index
                                     // );
+                                    // console.log(containerCurrent)
+
+                                    containerCurrent.visible = false;
+                                    containerPrevious.visible = false;
+
+                                    containerCurrent.scale.x = 1;
+                                    containerCurrent.scale.y = 1;
+                                    containerPrevious.scale.x = 1;
+                                    containerPrevious.scale.y = 1;
+                                    containerCurrent.parent.setChildIndex(
+                                        containerCurrent,
+                                        containerCurrentTmp
+                                    );
+                                    containerPrevious.parent.setChildIndex(
+                                        containerPrevious,
+                                        containerPreviousTmp
+                                    );
                                     res2();
                                 },
                             }
                         );
                     }, 200);
                 }).then(() => {
-                    containerCurrent.parent.setChildIndex(
-                        containerCurrent,
-                        containerCurrentTmp
-                    );
-                    containerPrevious.parent.setChildIndex(
-                        containerPrevious,
-                        containerPreviousTmp
-                    );
-                    scoreText.text = "Score = " + ++score;
-                    if (score == 10) {
+                    score += 10;
+                    correctTurnCount++;
+                    scoreText.text = "Score = " + score;
+                    // If you win
+                    if (correctTurnCount == 10) {
+
                         scoreTotal += score;
                         scoreTotalText.text =
                             "Số điểm hiện tại = " + scoreTotal;
                         scence2.visible = false;
                         scence3.visible = true;
+                        victoryText.text = "CHÚC MỪNG BẠN ĐẠT " + score + "đ";
                     }
                     res();
                 });
@@ -357,7 +496,7 @@ async function handleChooseImg(event) {
                     TweenMax.fromTo(
                         [containerCurrent.scale, containerPrevious.scale],
                         0.5,
-                        { x: 0 },
+                        {x: 0},
                         {
                             x: 1,
                             onStart: () => {
@@ -367,9 +506,23 @@ async function handleChooseImg(event) {
                                 containerPrevious.children[2].visible = true;
                                 res();
                             },
+                            onComplete: () => {
+                                score -= 10;
+                                scoreText.text = "Score = " + score;
+
+                                // If you lose
+                                if (score == 0) {
+                                    scoreTotal += score;
+                                    scoreTotalText.text =
+                                        "Số điểm hiện tại = " + scoreTotal;
+                                    scence2.visible = false;
+                                    scence3.visible = true;
+                                    victoryText.text = "GAME OVER";
+                                }
+                            }
                         }
                     );
-                }, 400);
+                }, 500);
             }
         });
         demClick = 0;

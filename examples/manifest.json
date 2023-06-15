@@ -4,7 +4,8 @@
             "title": "Trúc xanh",
             "entry": "trucxanh.js",
             "plugins": [
-                "TweenMax"
+                "TweenMax",
+                "soundjs"
             ]
         },
         {
