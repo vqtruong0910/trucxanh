@@ -15,15 +15,12 @@ let scoreTotal = 100;
 let score = 100;
 let demClick = 0;
 let containerPrevious, valueCurrent, valueIndex;
-let containerCurrentTmp, containerPreviousTmp;
+// let containerCurrentTmp, containerPreviousTmp;
 let correctTurnCount = 0;
-new Cre
 
-const thunder = "test"
-createjs.Sound.registerSound("examples/assets/sound_test.mp3", thunder);
-createjs.Sound.play(thunder);
-
-
+function likeSound(event) {
+    createjs.Sound.play(event.src);
+}
 // Crete a new textstyle
 const style = new PIXI.TextStyle({
     fontFamily: "Arial",
@@ -80,127 +77,6 @@ containerButton.on("pointerdown", () => {
     playGame();
 });
 
-/*new ParticleExample(
-    // The image to use
-    ["examples/assets/particle.png"],
-
-    // Emitter configuration, edit this to change the look
-    // of the emitter
-    {
-        "lifetime": {
-            "min": 0.5,
-            "max": 0.5
-        },
-        "frequency": 0.008,
-        "emitterLifetime": 0.31,
-        "maxParticles": 1000,
-        "addAtBack": false,
-        "pos": {
-            "x": 0,
-            "y": 0
-        },
-        "behaviors": [
-            {
-                "type": "alpha",
-                "config": {
-                    "alpha": {
-                        "list": [
-                            {
-                                "time": 0,
-                                "value": 0.8
-                            },
-                            {
-                                "time": 1,
-                                "value": 0.1
-                            }
-                        ]
-                    }
-                }
-            },
-            {
-                "type": "moveSpeed",
-                "config": {
-                    "speed": {
-                        "list": [
-                            {
-                                "time": 0,
-                                "value": 200
-                            },
-                            {
-                                "time": 1,
-                                "value": 100
-                            }
-                        ]
-                    }
-                }
-            },
-            {
-                "type": "scale",
-                "config": {
-                    "scale": {
-                        "list": [
-                            {
-                                "time": 0,
-                                "value": 1
-                            },
-                            {
-                                "time": 1,
-                                "value": 0.3
-                            }
-                        ]
-                    },
-                    "minMult": 1
-                }
-            },
-            {
-                "type": "color",
-                "config": {
-                    "color": {
-                        "list": [
-                            {
-                                "time": 0,
-                                "value": "fb1010"
-                            },
-                            {
-                                "time": 1,
-                                "value": "f5b830"
-                            }
-                        ]
-                    }
-                }
-            },
-            {
-                "type": "rotationStatic",
-                "config": {
-                    "min": 0,
-                    "max": 360
-                }
-            },
-            {
-                "type": "textureRandom",
-                "config": {
-                    "textures": [
-                        "examples/assets/particle.png"
-                    ]
-                }
-            },
-            {
-                "type": "spawnShape",
-                "config": {
-                    "type": "torus",
-                    "data": {
-                        "x": 0,
-                        "y": 0,
-                        "radius": 10,
-                        "innerRadius": 0,
-                        "affectRotation": false
-                    }
-                }
-            }
-        ]
-    });*/
-
-
 //SCENCE 2
 const scence2 = new PIXI.Container();
 app.stage.addChild(scence2);
@@ -222,8 +98,8 @@ for (let i = 0; i < 20; i++) {
     container.y = 160 + Math.floor(i / 5) * 100;
     container.pivot.x = container._width * 0.5;
     container.pivot.y = container._height * 0.5;
-    containerGame.addChildAt(container, i);
-    containerGame.index = i;
+    container.index = i;
+    containerGame.addChild(container);
 
     //new pixi sprite
 
@@ -254,7 +130,6 @@ for (let i = 0; i < 20; i++) {
 }
 
 const resetButton = PIXI.Sprite.from("examples/assets/pngwing.com.png");
-console.log(resetButton)
 resetButton.x = SCREEN_WIDTH - 100;
 resetButton.y = 50;
 scence2.addChild(resetButton);
@@ -321,14 +196,12 @@ containerButtonBack.on("pointerdown", () => {
     scence1.visible = true;
 });
 
-
 function playGame() {
     const centerX = SCREEN_WIDTH * 0.5;
     const centerY = SCREEN_HEIGHT * 0.5;
-    const index = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+    // const index = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
     scence2.children[1].children.reverse();
-    if (isFirst) {
-    } else {
+    if (!isFirst) {
         // shuffle(data);
         score = 100;
         correctTurnCount = 0;
@@ -381,7 +254,7 @@ function onCompleteAnimation(containerRect, i, isEnd) {
             containerRect.children[1].children[i].cursor = "pointer";
         }
         resetButton.interactive = true;
-        resetButton.cursor = "pointer"
+        resetButton.cursor = "pointer";
     }
 }
 
@@ -426,34 +299,24 @@ async function handleChooseImg(event) {
                                 x: 1.1,
                                 y: 1.1,
                                 onStart: () => {
-                                    containerCurrentTmp =
-                                        containerCurrent.parent.getChildIndex(
-                                            containerCurrent
-                                        );
-                                    containerPreviousTmp =
-                                        containerPrevious.parent.getChildIndex(
-                                            containerPrevious
-                                        );
+                                    // containerCurrentTmp =
+                                    //     containerCurrent.parent.getChildIndex(
+                                    //         containerCurrent
+                                    //     );
+                                    // containerPreviousTmp =
+                                    //     containerPrevious.parent.getChildIndex(
+                                    //         containerPrevious
+                                    //     );
                                     containerCurrent.parent.setChildIndex(
                                         containerCurrent,
-                                        18
+                                        19
                                     );
                                     containerPrevious.parent.setChildIndex(
                                         containerPrevious,
-                                        19
+                                        18
                                     );
                                 },
                                 onComplete: () => {
-                                    // containerCurrent.parent.setChildIndex(
-                                    //     containerCurrent,
-                                    //     containerCurrent.index
-                                    // );
-                                    // containerPrevious.parent.setChildIndex(
-                                    //     containerPrevious,
-                                    //     containerPrevious.index
-                                    // );
-                                    // console.log(containerCurrent)
-
                                     containerCurrent.visible = false;
                                     containerPrevious.visible = false;
 
@@ -461,14 +324,24 @@ async function handleChooseImg(event) {
                                     containerCurrent.scale.y = 1;
                                     containerPrevious.scale.x = 1;
                                     containerPrevious.scale.y = 1;
+
                                     containerCurrent.parent.setChildIndex(
                                         containerCurrent,
-                                        containerCurrentTmp
+                                        containerCurrent.index
                                     );
                                     containerPrevious.parent.setChildIndex(
                                         containerPrevious,
-                                        containerPreviousTmp
+                                        containerPrevious.index
                                     );
+
+                                    // containerCurrent.parent.setChildIndex(
+                                    //     containerCurrent,
+                                    //     containerCurrentTmp
+                                    // );
+                                    // containerPrevious.parent.setChildIndex(
+                                    //     containerPrevious,
+                                    //     containerPreviousTmp
+                                    // );
                                     res2();
                                 },
                             }
@@ -480,7 +353,6 @@ async function handleChooseImg(event) {
                     scoreText.text = "Score = " + score;
                     // If you win
                     if (correctTurnCount == 10) {
-
                         scoreTotal += score;
                         scoreTotalText.text =
                             "Số điểm hiện tại = " + scoreTotal;
@@ -496,7 +368,7 @@ async function handleChooseImg(event) {
                     TweenMax.fromTo(
                         [containerCurrent.scale, containerPrevious.scale],
                         0.5,
-                        {x: 0},
+                        { x: 0 },
                         {
                             x: 1,
                             onStart: () => {
@@ -519,7 +391,7 @@ async function handleChooseImg(event) {
                                     scence3.visible = true;
                                     victoryText.text = "GAME OVER";
                                 }
-                            }
+                            },
                         }
                     );
                 }, 500);
@@ -535,3 +407,12 @@ function shuffle(array) {
         [array[i], array[j]] = [array[j], array[i]];
     }
 }
+
+createjs.Sound.registerSound(
+    "examples/assets/sound_test.mp3",
+    "soundbackgound"
+);
+createjs.Sound.addEventListener("fileload", (event) => {
+    const bgSound = createjs.Sound.play(event.src);
+    bgSound.volume = 0.5;
+});

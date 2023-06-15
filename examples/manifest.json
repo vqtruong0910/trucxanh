@@ -3,10 +3,7 @@
         {
             "title": "Trúc xanh",
             "entry": "trucxanh.js",
-            "plugins": [
-                "TweenMax",
-                "soundjs"
-            ]
+            "plugins": ["TweenMax", "soundjs"]
         },
         {
             "title": "Container",
@@ -171,9 +168,7 @@
         {
             "title": "Pixie Shadow",
             "entry": "pixie-shadow-filter.js",
-            "plugins": [
-                "pixi-spine"
-            ]
+            "plugins": ["pixi-spine"]
         }
     ],
     "mesh-and-shaders": [
@@ -244,241 +239,166 @@
         {
             "title": "Outline",
             "entry": "outline.js",
-            "plugins": [
-                "pixi-filters"
-            ]
+            "plugins": ["pixi-filters"]
         }
     ],
     "plugin-spine": [
         {
             "title": "Dragon",
             "entry": "dragon.js",
-            "plugins": [
-                "pixi-spine"
-            ]
+            "plugins": ["pixi-spine"]
         },
         {
             "title": "Goblin",
             "entry": "goblins.js",
-            "plugins": [
-                "pixi-spine"
-            ]
+            "plugins": ["pixi-spine"]
         },
         {
             "title": "Pixie",
             "entry": "pixie.js",
-            "plugins": [
-                "pixi-spine"
-            ]
+            "plugins": ["pixi-spine"]
         },
         {
             "title": "Spineboy Walking",
             "entry": "spineboy.js",
-            "plugins": [
-                "pixi-spine"
-            ]
+            "plugins": ["pixi-spine"]
         },
-		{
+        {
             "title": "Spineboy Pro",
             "entry": "spineboy-pro.js",
-            "plugins": [
-                "pixi-spine"
-            ]
+            "plugins": ["pixi-spine"]
         }
     ],
-	"plugin-dragonbones": [
+    "plugin-dragonbones": [
         {
             "title": "Robot",
             "entry": "robot.js",
-            "plugins": [
-                "pixi-dragonbones"
-            ]
+            "plugins": ["pixi-dragonbones"]
         },
         {
             "title": "Eye Tracking",
             "entry": "eyetracking.js",
-            "plugins": [
-                "pixi-dragonbones"
-            ]
+            "plugins": ["pixi-dragonbones"]
         }
     ],
-	"plugin-heaven": [
+    "plugin-heaven": [
         {
             "title": "Invert",
             "entry": "invert.js",
-            "plugins": [
-                "pixi-heaven"
-            ]
+            "plugins": ["pixi-heaven"]
         },
-		{
+        {
             "title": "Polygon Packing",
             "entry": "polygon.js",
-            "plugins": [
-                "pixi-heaven"
-            ]
+            "plugins": ["pixi-heaven"]
         },
-		{
+        {
             "title": "Decals",
             "entry": "decals.js",
-            "plugins": [
-                "pixi-heaven"
-            ]
+            "plugins": ["pixi-heaven"]
         },
-		{
+        {
             "title": "Spine support",
             "entry": "spineboy-pro.js",
-            "plugins": [
-				"pixi-spine",
-                "pixi-heaven"
-            ]
+            "plugins": ["pixi-spine", "pixi-heaven"]
         }
-	],
+    ],
     "plugin-projection": [
         {
             "title": "2D Basics",
             "entry": "basic.js",
-            "plugins": [
-                "pixi-projection"
-            ]
+            "plugins": ["pixi-projection"]
         },
         {
             "title": "2D Plane",
             "entry": "plane.js",
-            "plugins": [
-                "pixi-projection"
-            ]
+            "plugins": ["pixi-projection"]
         },
         {
             "title": "2D Plane Tiling",
             "entry": "plane-tiling.js",
-            "plugins": [
-                "pixi-projection"
-            ]
+            "plugins": ["pixi-projection"]
         },
         {
             "title": "2D Quad projective",
             "entry": "quad-homo.js",
-            "plugins": [
-                "pixi-projection"
-            ]
+            "plugins": ["pixi-projection"]
         },
         {
             "title": "2D Quad bilinear",
             "entry": "quad-bi.js",
-            "plugins": [
-                "pixi-projection"
-            ],
-            "validVersions": [
-                4
-            ]
+            "plugins": ["pixi-projection"],
+            "validVersions": [4]
         },
         {
             "title": "Isometry basics",
             "entry": "iso-basic.js",
-            "plugins": [
-                "pixi-projection"
-            ]
+            "plugins": ["pixi-projection"]
         },
         {
             "title": "3D Camera Spine Layers",
             "entry": "camera-spine-layers.js",
-            "plugins": [
-                "pixi-spine",
-                "pixi-layers",
-                "pixi-projection-spine"
-            ]
+            "plugins": ["pixi-spine", "pixi-layers", "pixi-projection-spine"]
         },
         {
             "title": "3D Cards",
             "entry": "cards.js",
-            "plugins": [
-                "pixi-layers",
-                "pixi-projection"
-            ]
+            "plugins": ["pixi-layers", "pixi-projection"]
         },
         {
             "title": "3D Runner",
             "entry": "runner.js",
-            "plugins": [
-                "pixi-spine",
-                "pixi-projection"
-            ]
+            "plugins": ["pixi-spine", "pixi-projection"]
         }
     ],
     "plugin-layers": [
         {
             "title": "Normals",
             "entry": "normals.js",
-            "plugins": [
-                "pixi-layers",
-                "pixi-lights"
-            ],
-            "validVersions": [
-                4
-            ]
+            "plugins": ["pixi-layers", "pixi-lights"],
+            "validVersions": [4]
         },
         {
             "title": "Lighting",
             "entry": "lighting.js",
-            "plugins": [
-                "pixi-layers"
-            ]
+            "plugins": ["pixi-layers"]
         },
         {
             "title": "Z-order",
             "entry": "zorder.js",
-            "plugins": [
-                "pixi-layers"
-            ]
+            "plugins": ["pixi-layers"]
         },
         {
             "title": "Drag, Sort, Light",
             "entry": "normals-drag.js",
-            "plugins": [
-                "pixi-layers",
-                "pixi-lights"
-            ],
-            "validVersions": [
-                4
-            ]
+            "plugins": ["pixi-layers", "pixi-lights"],
+            "validVersions": [4]
         },
         {
             "title": "Trail",
             "entry": "trail.js",
-            "plugins": [
-                "pixi-layers"
-            ],
-            "validVersions": [
-                4
-            ]
+            "plugins": ["pixi-layers"],
+            "validVersions": [4]
         }
     ],
     "plugin-picture": [
         {
             "title": "Overlay blendMode",
             "entry": "overlay.js",
-            "plugins": [
-                "pixi-picture"
-            ],
-            "validVersions": [
-                4
-            ]
+            "plugins": ["pixi-picture"],
+            "validVersions": [4]
         }
     ],
     "plugin-compressed-textures": [
         {
             "title": "Extension chooser",
             "entry": "dds.js",
-            "plugins": [
-                "pixi-compressed-textures"
-            ]
+            "plugins": ["pixi-compressed-textures"]
         },
         {
             "title": "Not-premultiplied alpha",
             "entry": "not-premultiplied-alpha.js",
-            "plugins": [
-                "pixi-compressed-textures"
-            ]
+            "plugins": ["pixi-compressed-textures"]
         }
     ]
 }
