@@ -1,7 +1,6 @@
 const app = new PIXI.Application({
     width: 800,
     height: 600,
-    // backgroundColor: 0x1099bb,
     resolution: window.devicePixelRatio || 1,
 });
 document.body.appendChild(app.view);
@@ -9,18 +8,18 @@ document.body.appendChild(app.view);
 const SCREEN_WIDTH = app.screen.width;
 const SCREEN_HEIGHT = app.screen.height;
 const data = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
-// shuffle(data);
+shuffle(data);
 let isFirst = true;
 let scoreTotal = 100;
 let score = 100;
 let demClick = 0;
 let containerPrevious, valueCurrent, valueIndex;
-// let containerCurrentTmp, containerPreviousTmp;
 let correctTurnCount = 0;
+let countSuggest = 3;
+//RegisterSound
+let soundSuccess, soundFail, soundGameOver, soundGameVictory, soundGameStart, soundFlip;
+window.onLoad = loadingSound();
 
-function likeSound(event) {
-    createjs.Sound.play(event.src);
-}
 // Crete a new textstyle
 const style = new PIXI.TextStyle({
     fontFamily: "Arial",
@@ -72,6 +71,7 @@ containerButton.addChild(txtStartGame);
 containerButton.interactive = true;
 containerButton.cursor = "pointer";
 containerButton.on("pointerdown", () => {
+    playSoundClickButton()
     scence1.visible = false;
     scence2.visible = true;
     playGame();
@@ -129,12 +129,21 @@ for (let i = 0; i < 20; i++) {
     container.on("pointerdown", handleChooseImg);
 }
 
+const suggestButton = PIXI.Sprite.from("examples/assets/glasses.png");
+suggestButton.x = SCREEN_WIDTH - 100
+suggestButton.y = 50;
+scence2.addChild(suggestButton)
+suggestButton.on("pointerdown",() => {
+    suggestAction()
+})
 const resetButton = PIXI.Sprite.from("examples/assets/pngwing.com.png");
 resetButton.x = SCREEN_WIDTH - 100;
-resetButton.y = 50;
+resetButton.y = SCREEN_HEIGHT - 100;
 scence2.addChild(resetButton);
+resetButton.visible = false;
 
 resetButton.on("pointerdown", () => {
+    playSoundClickButton()
     playGame();
 });
 //SCENCE 3
@@ -168,6 +177,7 @@ containerButtonPlayAgain.addChild(txtPlayAgain);
 containerButtonPlayAgain.interactive = true;
 containerButtonPlayAgain.cursor = "pointer";
 containerButtonPlayAgain.on("pointerdown", () => {
+    playSoundClickButton()
     scence3.visible = false;
     scence2.visible = true;
     playGame();
@@ -192,6 +202,7 @@ containerButtonBack.addChild(txtBackGame);
 containerButtonBack.interactive = true;
 containerButtonBack.cursor = "pointer";
 containerButtonBack.on("pointerdown", () => {
+    playSoundClickButton()
     scence3.visible = false;
     scence1.visible = true;
 });
@@ -199,16 +210,15 @@ containerButtonBack.on("pointerdown", () => {
 function playGame() {
     const centerX = SCREEN_WIDTH * 0.5;
     const centerY = SCREEN_HEIGHT * 0.5;
-    // const index = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
     scence2.children[1].children.reverse();
     if (!isFirst) {
-        // shuffle(data);
+        shuffle(data);
+        disibleAction()
         score = 100;
         correctTurnCount = 0;
         scence2.children[0].text = "Score = " + score;
-        resetButton.interactive = false;
-        resetButton.cursor = false;
         for (let i = 0; i < 20; i++) {
+            // List Item container
             const updateContainer = scence2.children[1].children;
             updateContainer[i].interactive = false;
             updateContainer[i].cursor = false;
@@ -236,6 +246,20 @@ function playGame() {
     isFirst = false;
 }
 
+function disibleAction() {
+    resetButton.interactive = false;
+    resetButton.cursor = false;
+    suggestButton.interactive = false;
+    suggestButton.cursor = false;
+}
+
+function enableAction() {
+    suggestButton.interactive = true;
+    suggestButton.cursor = "pointer";
+    resetButton.interactive = true;
+    resetButton.cursor = "pointer";
+}
+
 function onStartAnimation(containerRect, i) {
     containerRect.children[1].setChildIndex(
         containerRect.children[1].children[i],
@@ -253,9 +277,35 @@ function onCompleteAnimation(containerRect, i, isEnd) {
             containerRect.children[1].children[i].interactive = true;
             containerRect.children[1].children[i].cursor = "pointer";
         }
-        resetButton.interactive = true;
-        resetButton.cursor = "pointer";
+        enableAction()
     }
+}
+
+function suggestAction() {
+    for (let i = 0; i < 19; i++) {
+        const containerFirst = containerGame.children[i];
+        for(let j = i + 1; j < 20; j++){
+            const containerSecond = containerGame.children[j];
+            if(containerFirst.children[0].value === containerSecond.children[0].value && containerFirst.visible && containerSecond.visible) {
+                setBackGroundColor(containerFirst, containerSecond)
+                return;
+            }
+        }
+    }
+}
+
+function setBackGroundColor(containerFirst, containerSecond){
+    containerFirst.children[1].clear();
+    containerFirst.children[1].beginFill(0xFFFF00, 0.8); // 0.8 is opacity
+    containerFirst.children[1].lineStyle(1, 0xfeeb77, 1);
+    containerFirst.children[1].drawRect(0, 0, 100, 100);
+    containerFirst.children[1].endFill();
+    containerSecond.children[1].clear();
+    containerSecond.children[1].beginFill(0xFFFF00, 0.8);
+    containerSecond.children[1].lineStyle(1, 0xfeeb77, 1);
+    containerSecond.children[1].drawRect(0, 0, 100, 100);
+    containerSecond.children[1].endFill();
+
 }
 
 async function handleChooseImg(event) {
@@ -268,6 +318,7 @@ async function handleChooseImg(event) {
         TweenMax.from(containerCurrent.scale, 0.5, {
             x: 0,
             onStart: () => {
+                playSoundFlip()
                 graphics.visible = false;
                 text.visible = false;
             },
@@ -282,6 +333,7 @@ async function handleChooseImg(event) {
             TweenMax.from(containerCurrent.scale, 0.5, {
                 x: 0,
                 onStart: () => {
+                    playSoundFlip()
                     graphics.visible = false;
                     text.visible = false;
                 },
@@ -290,115 +342,111 @@ async function handleChooseImg(event) {
         await new Promise((res) => {
             // 2 tam hinh giong nhau
             if (img.value == valueCurrent && text._text != valueIndex) {
-                new Promise((res2) => {
-                    setTimeout(() => {
-                        TweenMax.to(
-                            [containerCurrent.scale, containerPrevious.scale],
-                            0.5,
-                            {
-                                x: 1.1,
-                                y: 1.1,
-                                onStart: () => {
-                                    // containerCurrentTmp =
-                                    //     containerCurrent.parent.getChildIndex(
-                                    //         containerCurrent
-                                    //     );
-                                    // containerPreviousTmp =
-                                    //     containerPrevious.parent.getChildIndex(
-                                    //         containerPrevious
-                                    //     );
-                                    containerCurrent.parent.setChildIndex(
-                                        containerCurrent,
-                                        19
-                                    );
-                                    containerPrevious.parent.setChildIndex(
-                                        containerPrevious,
-                                        18
-                                    );
-                                },
-                                onComplete: () => {
-                                    containerCurrent.visible = false;
-                                    containerPrevious.visible = false;
+                actionCompare2ItemTrue(containerCurrent,containerPrevious, res)
+            } else {
+                // 2 tam hinh khong giong nhau
+                actionCompare2ItemFalse(containerCurrent,containerPrevious,graphics,text, res)
+            }
+        });
+        demClick = 0;
+    }
+}
 
-                                    containerCurrent.scale.x = 1;
-                                    containerCurrent.scale.y = 1;
-                                    containerPrevious.scale.x = 1;
-                                    containerPrevious.scale.y = 1;
-
-                                    containerCurrent.parent.setChildIndex(
-                                        containerCurrent,
-                                        containerCurrent.index
-                                    );
-                                    containerPrevious.parent.setChildIndex(
-                                        containerPrevious,
-                                        containerPrevious.index
-                                    );
-
-                                    // containerCurrent.parent.setChildIndex(
-                                    //     containerCurrent,
-                                    //     containerCurrentTmp
-                                    // );
-                                    // containerPrevious.parent.setChildIndex(
-                                    //     containerPrevious,
-                                    //     containerPreviousTmp
-                                    // );
-                                    res2();
-                                },
-                            }
+function actionCompare2ItemTrue(containerCurrent,containerPrevious, res) {
+    new Promise((res2) => {
+        setTimeout(() => {
+            TweenMax.to(
+                [containerCurrent.scale, containerPrevious.scale],
+                0.5,
+                {
+                    x: 1.1,
+                    y: 1.1,
+                    onStart: () => {
+                        containerCurrent.parent.setChildIndex(
+                            containerCurrent,
+                            19
                         );
-                    }, 200);
-                }).then(() => {
-                    score += 10;
-                    correctTurnCount++;
+                        containerPrevious.parent.setChildIndex(
+                            containerPrevious,
+                            18
+                        );
+                    },
+                    onComplete: () => {
+                        playSoundSuccess()
+                        containerCurrent.visible = false;
+                        containerPrevious.visible = false;
+
+                        containerCurrent.scale.x = 1;
+                        containerCurrent.scale.y = 1;
+                        containerPrevious.scale.x = 1;
+                        containerPrevious.scale.y = 1;
+
+                        containerCurrent.parent.setChildIndex(
+                            containerCurrent,
+                            containerCurrent.index
+                        );
+                        containerPrevious.parent.setChildIndex(
+                            containerPrevious,
+                            containerPrevious.index
+                        );
+                        res2();
+                    },
+                }
+            );
+        }, 200);
+    }).then(() => {
+        score += 10;
+        correctTurnCount++;
+        scoreText.text = "Score = " + score;
+        // If you win
+        if (correctTurnCount == 10) {
+            playSoundGameVictory()
+            scoreTotal += score;
+            scoreTotalText.text =
+                "Số điểm hiện tại = " + scoreTotal;
+            scence2.visible = false;
+            scence3.visible = true;
+            victoryText.text = "CHÚC MỪNG BẠN ĐẠT " + score + "đ";
+        }
+        res();
+    });
+}
+
+function actionCompare2ItemFalse(containerCurrent,containerPrevious,graphics,text, res) {
+    setTimeout(() => {
+        TweenMax.from(
+            [containerCurrent.scale, containerPrevious.scale],
+            0.5,
+            {
+                x: 0,
+                onStart: () => {
+                    playSoundFail()
+                    graphics.visible = true;
+                    text.visible = true;
+                    containerPrevious.children[1].visible = true;
+                    containerPrevious.children[2].visible = true;
+                },
+                onComplete: () => {
+                    score -= 10;
                     scoreText.text = "Score = " + score;
-                    // If you win
-                    if (correctTurnCount == 10) {
+
+                    // If you lose
+                    if (score == 0) {
+                        // if (!soundGameOver) createSoundGameOver()
+                        // else
+                        playSoundGameOver()
                         scoreTotal += score;
                         scoreTotalText.text =
                             "Số điểm hiện tại = " + scoreTotal;
                         scence2.visible = false;
                         scence3.visible = true;
-                        victoryText.text = "CHÚC MỪNG BẠN ĐẠT " + score + "đ";
+                        victoryText.text = "GAME OVER";
                     }
                     res();
-                });
-            } else {
-                // 2 tam hinh khong giong nhau
-                setTimeout(() => {
-                    TweenMax.fromTo(
-                        [containerCurrent.scale, containerPrevious.scale],
-                        0.5,
-                        { x: 0 },
-                        {
-                            x: 1,
-                            onStart: () => {
-                                graphics.visible = true;
-                                text.visible = true;
-                                containerPrevious.children[1].visible = true;
-                                containerPrevious.children[2].visible = true;
-                                res();
-                            },
-                            onComplete: () => {
-                                score -= 10;
-                                scoreText.text = "Score = " + score;
-
-                                // If you lose
-                                if (score == 0) {
-                                    scoreTotal += score;
-                                    scoreTotalText.text =
-                                        "Số điểm hiện tại = " + scoreTotal;
-                                    scence2.visible = false;
-                                    scence3.visible = true;
-                                    victoryText.text = "GAME OVER";
-                                }
-                            },
-                        }
-                    );
-                }, 500);
+                },
             }
-        });
-        demClick = 0;
-    }
+        );
+    }, 500);
 }
 
 function shuffle(array) {
@@ -408,11 +456,56 @@ function shuffle(array) {
     }
 }
 
-createjs.Sound.registerSound(
-    "examples/assets/sound_test.mp3",
-    "soundbackgound"
-);
-createjs.Sound.addEventListener("fileload", (event) => {
-    const bgSound = createjs.Sound.play(event.src);
-    bgSound.volume = 0.5;
-});
+function loadingSound() {
+    createjs.Sound.registerSound("examples/assets/flip.mp3", "soundflip")
+    createjs.Sound.registerSound("examples/assets/success.mp3", "soundsuccess")
+    createjs.Sound.registerSound("examples/assets/fail.mp3", "soundfail")
+    createjs.Sound.registerSound("examples/assets/game-over.mp3", "soundgameover")
+    createjs.Sound.registerSound("examples/assets/win.mp3", "soundgamevictory")
+    createjs.Sound.registerSound("examples/assets/game-start.mp3", "soundclick")
+}
+
+// sound when fip
+
+function playSoundFlip() {
+    soundFlip = createjs.Sound.play("soundflip")
+}
+
+// sound when choose success
+
+function playSoundSuccess() {
+    soundSuccess = createjs.Sound.play("soundsuccess")
+}
+
+// Sound when choose fail
+
+function playSoundFail() {
+    soundFail = createjs.Sound.play("soundfail");
+}
+
+// Sound game over
+
+function playSoundGameOver() {
+    soundGameOver = createjs.Sound.play("soundgameover")
+}
+
+// Sound game victory
+
+function playSoundGameVictory() {
+    soundGameVictory = createjs.Sound.play("soundgamevictory")
+}
+
+// Sound game start
+
+function playSoundClickButton() {
+    soundGameStart = createjs.Sound.play("soundclick")
+}
+
+// createjs.Sound.registerSound(
+//     "examples/assets/sound_test.mp3",
+//     "soundbackgound"
+// );
+// createjs.Sound.addEventListener("fileload", (event) => {
+//     const bgSound = createjs.Sound.play(event.src);
+//     bgSound.volume = 0.5;
+// });
